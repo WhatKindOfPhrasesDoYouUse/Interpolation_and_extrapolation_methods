@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.interpolate
 from scipy import interpolate
 
 # полный набор данных
@@ -19,7 +20,7 @@ def bigData():
     return VY, VX, XJ
 
 def scale():
-    VY, VX, X = bigData()
+    VY,VX,X=bigData()
     XJ1=[]
     scale1=15
     j=0
@@ -42,35 +43,66 @@ def scale():
     spl1=interpolate.splev(XJ1, C)
     spl2=interpolate.splev(XJ2, C)
     spl3=interpolate.splev(XJ3, C)
-    return XJ1,XJ2,XJ3,spl1,spl2,spl3
+    return XJ1,XJ2,XJ3,spl1,spl2,
 
 # кусочно - линейная интерполяция
-def linterp(x):
-    VY,VX,XJ = bigData()
-    lint = np.interp(x,VX,VY)
-    return lint
+def piecewiseLinearInterpolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY, kind='linear')
+    return f(x)
 
+# сплайн - линейная интерполяция
+def splineLinearInterpolation(x):
+    VY, VX, XJ = bigData()
+    C = interpolate.splrep(VX, VY)
+    f = interpolate.splev(x, C)
+    return f
+
+# сплайн - кубическая интерполяция
+def splineCubicInterpolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY,'cubic')
+    return f(x)
+
+# сплайн - пабаробилческая интерполяция
+def splineParabolicInterpolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY, kind='quadratic')
+    return f(x)
+
+# кусочно - линейная экстраполяция
+def piecewiseLinearExtrapolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY, kind='linear', fill_value='extrapolate')
+    return f(x)
+
+# сплайн - кубическая экстрополяция
+def splineCubicExtrapolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY,'cubic', fill_value='extrapolate')
+    return f(x)
+
+# сплайн - параболическая экстрополяция
+def splineParabolicExtrapolation(x):
+    VY, VX, XJ = bigData()
+    f = interpolate.interp1d(VX, VY, kind='quadratic', fill_value='extrapolate')
+    return f(x)
+
+# сплайн - линейная экстрополяця
 def cspline(x):
     VY, VX, XJ = bigData()
     C = interpolate.splrep(VX, VY)
     spl=interpolate.splev(x, C)
     return spl
 
-x = np.arange(0, 5.980, 0.01)
-VY, VX, XJ = bigData()
-C = interpolate.splrep(VX, VY)
-L = interpolate.splev(x, C) # линейная
-P = interpolate.interp1d(VX, VY, kind = 2) # параболическая
-S = interpolate.interp1d(VX, VY, kind = 3) # кубическая
-
-# график кусочно - линейной интерполяции (1 по тз)
+# график кусочно - линейной интерполяции
 def chart1():
     VY, VX, XJ = bigData()
     x = np.arange(0, 5.980, 0.01)
     fig, lin = plt.subplots()
     lin.plot(VX, VY, 'r*')
-    lin.plot(x, linterp(x), '-b')
-    lin.legend(['Исходные точки', 'Кусочно-линейная интерполяция'])
+    lin.plot(x, piecewiseLinearInterpolation(x), '-b')
+    lin.legend(['Исходные точки', 'Кусочно - линейная интерполяция'])
     lin.set_title('Кусочно - линейная интерполяция')
     plt.grid()
     plt.show()
@@ -81,42 +113,77 @@ def chart2():
     x = np.arange(0, 5.980, 0.01)
     fig, lin = plt.subplots()
     lin.plot(VX, VY, 'r*')
-    lin.plot(x, linterp(x), '-b')
-    lin.plot(x, L, linestyle = '--', color ='green')
-    lin.legend(['Исходные точки', 'Кусочно-линейная интерполяция', 'Сплайн-линейная'])
-    lin.set_title('Сравнение кусочно - линейной и сплайн - линейной')
+    lin.plot(x, piecewiseLinearInterpolation(x), '-b')
+    lin.plot(x, splineLinearInterpolation(x), '-g')
+    lin.legend(['Исходные точки', 'Кусочно - линеная', 'Сплайн - линейная'])
+    lin.set_title('Cравнения кусочно - линейной и сплайн - линейной интерполяции')
     plt.grid()
     plt.show()
 
-# график сплайн интерполяций
+# сравнение 3 видов сплайн интерполяции
 def chart3():
     VY, VX, XJ = bigData()
     x = np.arange(0, 5.980, 0.01)
     fig, lin = plt.subplots()
     lin.plot(VX, VY, 'r*')
-    lin.plot(x, L, linestyle = "-", color = 'blue')
-    lin.plot(x, S(x), linestyle = '--', color = 'green')
-    lin.plot(x, P(x), linestyle = ':', color = 'pink')
+    lin.plot(x, splineLinearInterpolation(x), '--b')
+    lin.plot(x, splineParabolicInterpolation(x), ':g')
+    lin.plot(x, splineCubicInterpolation(x), ':y')
     lin.legend(['Исходные точки', 'Линейная', 'Кубическая', 'Параболическая'])
     lin.set_title('Сравнение сплайн интерполяций')
     plt.grid()
     plt.show()
 
-# график сравнения интерполяций вне диапазона
+# сравнение 3 видов сплайн интерполяции на изгибе
 def chart4():
     VY, VX, XJ = bigData()
-    x = np.arange(-0.5, 9, 0.01)
+    x = np.arange(0, 5.980, 0.01)
     fig, lin = plt.subplots()
     lin.plot(VX, VY, 'r*')
-    lin.plot(x, linterp(x), '-g')
-    lin.plot(x, cspline(x), linestyle = ':', color = 'blue')
-    lin.legend(['Исходные точки', 'Линейная интерполяция', 'Сплайн линейная'])
-    lin.set_title('Сравнение интерполяции вне диапазона')
+    lin.plot(x, splineLinearInterpolation(x), '--b')
+    lin.plot(x, splineParabolicInterpolation(x), ':g')
+    lin.plot(x, splineCubicInterpolation(x), '-y')
+    plt.xlim(0, 0.7)
+    plt.ylim(-50, 100)
+    lin.legend(['Исходные точки', 'Линейная', 'Кубическая', 'Параболическая'])
+    lin.set_title('Сравнение сплайн интерполяций на изгибе')
     plt.grid()
     plt.show()
 
-chart1()
-chart2()
-chart3()
-chart4()
+# график интерполяции вне диапазона
+def chart5():
+    VY, VX, XJ = bigData()
+    x = np.arange(5, 8, 0.01)
+    fig, lin = plt.subplots()
+    lin.plot(VX, VY, 'r*')
+    lin.plot(x, piecewiseLinearExtrapolation(x), '-g')
+    lin.plot(x, splineCubicExtrapolation(x), '-b')
+    lin.plot(x, splineParabolicExtrapolation(x), '-y')
+    plt.xlim(5, 8)
+    plt.ylim(-5, 25)
+    lin.legend(['Исходные точки','Сплайн - кубическая', 'Сплайн - линейная', 'Сплайн - параболическая'])
+    lin.set_title('Экстраполяция')
+    plt.grid()
+    plt.show()
 
+# вычисление значений в узле и между узлами
+def calculationsNode():
+    print("Интерполяция в узле (0.299199)")
+    print("Кусочно - линеная: ", piecewiseLinearInterpolation(0.299199))
+    print("Сплайн - линейная: ", splineLinearInterpolation(0.299199))
+    print("Сплайн - кубическая: ", splineCubicInterpolation(0.299199))
+    print("Сплайн - параболическая: ", splineParabolicInterpolation(0.299199))
+    print("Интерполяция между узлами (1.6)")
+    print("Кусочно - линейная: ", piecewiseLinearInterpolation(1.6))
+    print("Сплайн - линейная: ", splineLinearInterpolation(1.6))
+    print("Сплайн - кубическая: ", splineCubicInterpolation(1.6))
+    print("Сплайн - параболическая: ", splineParabolicInterpolation(1.6))
+    return
+
+#chart1()
+#chart2()
+#chart3()
+#chart4()
+#chart5()
+chart6()
+#calculationsNode()
