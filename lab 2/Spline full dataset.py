@@ -185,5 +185,5 @@ def calculationsNode():
 #chart3()
 #chart4()
 #chart5()
-chart6()
+#chart6()
 #calculationsNode()
