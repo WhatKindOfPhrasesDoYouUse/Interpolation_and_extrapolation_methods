@@ -155,14 +155,18 @@ def chart5():
     VY, VX, XJ = bigData()
     x = np.arange(5, 8, 0.01)
     fig, lin = plt.subplots()
+    range1, range2, range3 = calculationsOutARange()
     lin.plot(VX, VY, 'r*')
-    lin.plot(x, piecewiseLinearExtrapolation(x), '-g')
-    lin.plot(x, splineCubicExtrapolation(x), '-b')
+    lin.plot(7, range1, 'b*')
+    lin.plot(7, range2, 'g*')
+    lin.plot(7, range3, 'y*')
+    lin.plot(x, piecewiseLinearExtrapolation(x), '-b')
+    lin.plot(x, splineCubicExtrapolation(x), '-g')
     lin.plot(x, splineParabolicExtrapolation(x), '-y')
     plt.xlim(5, 8)
     plt.ylim(-5, 25)
-    lin.legend(['Исходные точки','Сплайн - кубическая', 'Сплайн - линейная', 'Сплайн - параболическая'])
-    lin.set_title('Экстраполяция')
+    lin.legend(['Исходные точки','Кус - лин точка', 'Куб точка', 'Параб точка', 'Кусочно - линейная', 'Сплайн - кубическая', 'Сплайн - параболическая'])
+    #lin.set_title('Экстраполяция')
     plt.grid()
     plt.show()
 
@@ -180,6 +184,14 @@ def calculationsNode():
     print("Сплайн - параболическая: ", splineParabolicInterpolation(1.6))
     return
 
+def calculationsOutARange():
+    range1 = piecewiseLinearExtrapolation(7)
+    range3 = splineCubicExtrapolation(7)
+    range2 = splineParabolicExtrapolation(7)
+    return [range1, range2, range3]
+
+
+
 #chart1()
 #chart2()
 #chart3()
@@ -187,3 +199,4 @@ def calculationsNode():
 #chart5()
 #chart6()
 #calculationsNode()
+#calculationsOutARange()
