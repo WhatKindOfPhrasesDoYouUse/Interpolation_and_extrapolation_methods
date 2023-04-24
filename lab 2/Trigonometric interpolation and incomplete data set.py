@@ -103,6 +103,7 @@ def pbig(x):
         P.append((c[k] + c1[k]) * 2 + a0)
         k = k + 1
     return P
+
 def psmall(x):
     VY,VX,XJ = smallData()
     n = 5
