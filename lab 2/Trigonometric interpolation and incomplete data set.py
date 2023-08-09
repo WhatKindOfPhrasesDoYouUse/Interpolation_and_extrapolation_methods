@@ -60,8 +60,8 @@ def splineCubicInterpolation(x):
     return f(x)
 
 def pbig(x):
-    VY,VX,XJ = smallData()
-    n = 5
+    VY,VX,XJ = bigData()
+    n = 10
     i = 0
     a0 = 0
     while i < 2 * n + 1:
